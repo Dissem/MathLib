@@ -73,8 +73,34 @@ public class QuaternionTest {
         Quaternion q1 = H(1, 2, 3, 4);
         Quaternion q2 = H(15, -4, -26, 0);
 
-        assertEquals(ZERO, q1.times(ZERO));
-        assertEquals(H(-28, 4, 6, 8), q1.times(q1));
-        assertEquals(H(101, 130, 3, 20), q1.times(q2));
+        assertEquals(ZERO, q1.multiply(ZERO));
+        assertEquals(H(-28, 4, 6, 8), q1.multiply(q1));
+        assertEquals(H(101, 130, 3, 20), q1.multiply(q2));
+
+        assertEquals(H(2, 4, 6, 8), q1.multiply(H(2)));
+    }
+
+    @Test
+    public void ensureNumberTimesReciprocalEqualsOne() {
+        Quaternion q = getRandom();
+        assertEquals(H(1), q.multiply(q.reciprocal()));
+    }
+
+    @Test
+    public void ensureDivisionWorks() {
+        Quaternion q1 = H(1, 2, 3, 4);
+        Quaternion q2 = H(15, -4, -26, 0);
+
+        assertEquals(q1, q1.divide(H(1)));
+        assertEquals(H(0.5, 1, 1.5, 2), q1.divide(H(2)));
+
+        Quaternion q3 = H(0, 0, 0, 1);
+        assertEquals(q1, q1.divide(q3).multiply(q3));
+
+        assertEquals(q1, q1.multiply(q2).divide(q2));
+    }
+
+    private Quaternion getRandom() {
+        return H(100 * Math.random(), 100 * Math.random(), 100 * Math.random(), 100 * Math.random());
     }
 }

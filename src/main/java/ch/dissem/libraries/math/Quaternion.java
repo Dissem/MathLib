@@ -1,6 +1,5 @@
 package ch.dissem.libraries.math;
 
-import javax.swing.text.NumberFormatter;
 import java.text.DecimalFormat;
 
 /**
@@ -29,14 +28,35 @@ public class Quaternion {
         return new Quaternion(w - other.w, x - other.x, y - other.y, z - other.z);
     }
 
-    public Quaternion times(Quaternion other) {
+    public Quaternion multiply(Quaternion by) {
         Quaternion a = this;
-        Quaternion b = other;
+        Quaternion b = by;
         double w1 = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z;
         double x1 = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y;
         double y1 = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x;
         double z1 = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w;
         return new Quaternion(w1, x1, y1, z1);
+    }
+
+    public Quaternion conjugate() {
+        return new Quaternion(w, -x, -y, -z);
+    }
+
+    protected double normalSquare() {
+        return w * w + x * x + y * y + z * z;
+    }
+
+    public double normal() {
+        return Math.sqrt(normalSquare());
+    }
+
+    public Quaternion reciprocal() {
+        double n = normalSquare();
+        return new Quaternion(w / n, -x / n, -y / n, -z / n);
+    }
+
+    public Quaternion divide(Quaternion by) {
+        return multiply(by.reciprocal());
     }
 
     @Override
@@ -60,5 +80,9 @@ public class Quaternion {
 
     public static Quaternion H(double x, double y, double z) {
         return new Quaternion(0, x, y, z);
+    }
+
+    public static Quaternion H(double scale) {
+        return new Quaternion(scale, 0, 0, 0);
     }
 }
