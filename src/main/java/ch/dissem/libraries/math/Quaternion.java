@@ -3,7 +3,14 @@ package ch.dissem.libraries.math;
 import java.text.DecimalFormat;
 
 /**
- * Created by chris on 03.11.14.
+ * An implementation of <a href="http://en.wikipedia.org/wiki/Quaternion">Quaternions
+ * as described by William Rowan Hamilton</a>.
+ * <p>
+ * To save you some writing there are helper methods H to create Quaternion
+ * representations of cartesian coordinates, scalars and of course full
+ * Quaternions.
+ * <p/>
+ * Created by Christian Basler on 03.11.14.
  */
 public class Quaternion {
     private final static DecimalFormat FORMAT = new DecimalFormat("#,##0.00");
@@ -42,16 +49,21 @@ public class Quaternion {
         return new Quaternion(w, -x, -y, -z);
     }
 
-    protected double normalSquare() {
+    protected double normSquared() {
         return w * w + x * x + y * y + z * z;
     }
 
-    public double normal() {
-        return Math.sqrt(normalSquare());
+    public double norm() {
+        return Math.sqrt(normSquared());
+    }
+
+    public Quaternion normalize() {
+        double n = norm();
+        return new Quaternion(w / n, x / n, y / n, z / n);
     }
 
     public Quaternion reciprocal() {
-        double n = normalSquare();
+        double n = normSquared();
         return new Quaternion(w / n, -x / n, -y / n, -z / n);
     }
 

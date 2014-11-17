@@ -100,6 +100,16 @@ public class QuaternionTest {
         assertEquals(q1, q1.multiply(q2).divide(q2));
     }
 
+    @Test
+    public void ensureNormalizationWorks() {
+        assertEquals(H(1, 0, 0, 0), H(2, 0, 0, 0).normalize());
+        assertEquals(H(0, 1, 0, 0), H(0, 3, 0, 0).normalize());
+        assertEquals(H(0, 0, 1, 0), H(0, 0, 4, 0).normalize());
+        assertEquals(H(0, 0, 0, 1), H(0, 0, 0, 5).normalize());
+
+        assertEquals(1, H(1,2,3,4).normalize().norm(), DELTA);
+    }
+
     private Quaternion getRandom() {
         return H(100 * Math.random(), 100 * Math.random(), 100 * Math.random(), 100 * Math.random());
     }
