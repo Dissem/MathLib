@@ -1,11 +1,12 @@
 package ch.dissem.libraries.math;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 /**
  * An implementation of <a href="http://en.wikipedia.org/wiki/Quaternion">Quaternions
  * as described by William Rowan Hamilton</a>.
- * <p>
+ * <p/>
  * To save you some writing there are helper methods H to create Quaternion
  * representations of cartesian coordinates, scalars and of course full
  * Quaternions.
@@ -15,7 +16,7 @@ import java.text.DecimalFormat;
 public class Quaternion {
     private final static DecimalFormat FORMAT = new DecimalFormat("#,##0.00");
 
-    public static final double DELTA = 0.0000000001;
+    public static final double DELTA = 0.00000000000001;
     public final double w, x, y, z;
 
     public static final Quaternion ZERO = new Quaternion(0, 0, 0, 0);
@@ -83,7 +84,7 @@ public class Quaternion {
 
     @Override
     public String toString() {
-        return String.format("%.2f%+.2fi%+.2fj%+.2fk", w, x, y, z).replaceAll("\\+", " + ").replaceAll("\\-", " - ").trim();
+        return String.format(Locale.US, "%.2f%+.2fi%+.2fj%+.2fk", w, x, y, z).replaceAll("\\+", " + ").replaceAll("\\-", " - ").trim();
     }
 
     public static Quaternion H(double h, double hi, double hj, double hk) {
