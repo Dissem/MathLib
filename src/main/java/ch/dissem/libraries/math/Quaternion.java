@@ -3,6 +3,10 @@ package ch.dissem.libraries.math;
 import java.text.DecimalFormat;
 import java.util.Locale;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+
 /**
  * An implementation of <a href="http://en.wikipedia.org/wiki/Quaternion">Quaternions
  * as described by William Rowan Hamilton</a>.
@@ -14,8 +18,6 @@ import java.util.Locale;
  * Created by Christian Basler on 03.11.14.
  */
 public class Quaternion {
-    private final static DecimalFormat FORMAT = new DecimalFormat("#,##0.00");
-
     public static final double DELTA = 0.00000000000001;
     public final double w, x, y, z;
 
@@ -55,7 +57,7 @@ public class Quaternion {
     }
 
     public double norm() {
-        return Math.sqrt(normSquared());
+        return sqrt(normSquared());
     }
 
     public Quaternion normalize() {
@@ -70,6 +72,13 @@ public class Quaternion {
 
     public Quaternion divide(Quaternion by) {
         return multiply(by.reciprocal());
+    }
+
+    public Quaternion rotate(double theta, double x, double y, double z) {
+        double n = sqrt(x * x + y * y + z * z);
+        double sinFactor = sin(theta / 2) / n;
+        Quaternion q = new Quaternion(cos(theta / 2), x * sinFactor, y * sinFactor, z * sinFactor);
+        return q.multiply(this).multiply(q.reciprocal());
     }
 
     @Override

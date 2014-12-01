@@ -2,6 +2,7 @@ import ch.dissem.libraries.math.Quaternion;
 import org.junit.Test;
 
 import static ch.dissem.libraries.math.Quaternion.*;
+import static java.lang.Math.PI;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -15,7 +16,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void ensureAdditionWorks() {
+    public void testAddition() {
         double w1 = 100 * Math.random();
         double x1 = 100 * Math.random();
         double y1 = 100 * Math.random();
@@ -42,7 +43,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void ensureSubtractionWorks() {
+    public void testSubtraction() {
         double w1 = 100 * Math.random();
         double x1 = 100 * Math.random();
         double y1 = 100 * Math.random();
@@ -69,7 +70,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void ensureMultiplicationWorks() {
+    public void testMultiplication() {
         Quaternion q1 = H(1, 2, 3, 4);
         Quaternion q2 = H(15, -4, -26, 0);
 
@@ -87,7 +88,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void ensureDivisionWorks() {
+    public void testDivision() {
         Quaternion q1 = H(1, 2, 3, 4);
         Quaternion q2 = H(15, -4, -26, 0);
 
@@ -101,13 +102,20 @@ public class QuaternionTest {
     }
 
     @Test
-    public void ensureNormalizationWorks() {
+    public void testNormalization() {
         assertEquals(H(1, 0, 0, 0), H(2, 0, 0, 0).normalize());
         assertEquals(H(0, 1, 0, 0), H(0, 3, 0, 0).normalize());
         assertEquals(H(0, 0, 1, 0), H(0, 0, 4, 0).normalize());
         assertEquals(H(0, 0, 0, 1), H(0, 0, 0, 5).normalize());
 
-        assertEquals(1, H(1,2,3,4).normalize().norm(), DELTA);
+        assertEquals(1, H(1, 2, 3, 4).normalize().norm(), DELTA);
+    }
+
+    @Test
+    public void testRotation() {
+        assertEquals(H(0, 1, 0, 0), H(0, 0, 1, 0).rotate(-PI / 2, 0, 0, 1));
+        assertEquals(H(0, PI, 1, 2), H(0, -1, PI, 2).rotate(PI / 2, 0, 0, -2));
+        assertEquals(H(0, 3, 1, 2), H(0, 1, 2, 3).rotate(2 * PI / 3, 1, 1, 1));
     }
 
     private Quaternion getRandom() {
