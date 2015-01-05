@@ -126,19 +126,26 @@ public class QuaternionTest {
     }
 
     @Test
-    @Ignore
+    public void testGetFromAngleAndAxis() {
+        for (int i = 0; i < 1000; i++)
+            assertEquals(1.0, H(random() * 20, getRandom().getVector()).norm(), Quaternion.DELTA);
+    }
+
+    @Test
     public void testGetRotation() {
-        double theta = PI / 2, x = 0, y = 0, z = -2;
-        double n = sqrt(x * x + y * y + z * z);
-        double sinFactor = sin(theta / 2) / n;
-        Quaternion q = H(cos(theta / 2), x * sinFactor, y * sinFactor, z * sinFactor);
+        assertEquals(H(PI / 2, V(0, 0, -1)), Quaternion.getRotation(H(0, 0, 1, 0), H(0, 1, 0, 0)));
 
-        assertEquals(H(cos(-PI / 4), 0, 0, sin(-PI / 4)), Quaternion.getRotation(H(0, 0, 1, 0), H(0, 1, 0, 0)));
-        assertEquals(H(cos(-PI / 4), 0, 0, sin(-PI / 4)), Quaternion.getRotation(H(0, -1, PI, 2), H(0, PI, 1, 2)));
-//        assertEquals(H(0.8, 0.18, 0.35, 0.46), q);
+        testRotation(H(0, 1, 0, 0), H(PI, V(0, 1, 0)));
+        testRotation(H(0, 1, 0, 0), H(0, V(0, 1, 0)));
 
-//        assertEquals(H(0, PI, 1, 2), H(0, -1, PI, 2).rotate(PI / 2, 0, 0, -2));
-//        assertEquals(H(0, 3, 1, 2), H(0, 1, 2, 3).rotate(2 * PI / 3, 1, 1, 1));
+        Quaternion q = getRandom().getIm();
+        Quaternion r = H(0.01, getRandom().getVector());
+        testRotation(q, r);
+    }
+
+    private void testRotation(Quaternion q, Quaternion r) {
+        Quaternion r2 = Quaternion.getRotation(q, q.rotate(r));
+        assertEquals(q.rotate(r), q.rotate(r2));
     }
 
     @Test
@@ -165,6 +172,6 @@ public class QuaternionTest {
     }
 
     private Quaternion getRandom() {
-        return H(100 * random(), 100 * random(), 100 * random(), 100 * random());
+        return H(10 * random(), 10 * random(), 10 * random(), 10 * random());
     }
 }

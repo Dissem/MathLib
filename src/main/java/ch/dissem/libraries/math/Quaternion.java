@@ -72,11 +72,15 @@ public class Quaternion {
         return multiply(by.reciprocal());
     }
 
+    public Quaternion rotate(Quaternion rotation) {
+        return rotation.multiply(this).multiply(rotation.conjugate());
+    }
+
     public Quaternion rotate(double theta, double x, double y, double z) {
         double n = sqrt(x * x + y * y + z * z);
         double sinFactor = sin(theta / 2) / n;
         Quaternion q = new Quaternion(cos(theta / 2), x * sinFactor, y * sinFactor, z * sinFactor);
-        return q.multiply(this).multiply(q.reciprocal());
+        return rotate(q);
     }
 
     public Quaternion exp() {
@@ -90,12 +94,29 @@ public class Quaternion {
         return H(Math.log(norm)).add(getIm().normalize().multiply(H(acos(w / norm))));
     }
 
+    public Quaternion dot(Quaternion other) {
+        return new Quaternion(w * other.w + x * other.x + y * other.y + z * other.z,
+                0, 0, 0);
+    }
+
+    public Quaternion cross(Quaternion other) {
+        return new Quaternion(0,
+                y * other.z - z * other.y,
+                z * other.x - x * other.z,
+                x * other.y - y * other.x
+        );
+    }
+
     public Quaternion getRe() {
         return new Quaternion(w, 0, 0, 0);
     }
 
     public Quaternion getIm() {
         return new Quaternion(0, x, y, z);
+    }
+
+    public Vector getVector() {
+        return new Vector(x, y, z);
     }
 
     public double getPhi() {
@@ -113,8 +134,7 @@ public class Quaternion {
     }
 
     public boolean equals(Quaternion other, double delta) {
-        Quaternion d = this.subtract(other);
-        return Math.abs(d.w) < delta && Math.abs(d.x) < delta && Math.abs(d.y) < delta && Math.abs(d.z) < delta;
+        return this.subtract(other).normSquared() < delta;
     }
 
     @Override
@@ -122,14 +142,12 @@ public class Quaternion {
         return String.format(Locale.US, "%.2f%+.2fi%+.2fj%+.2fk", w, x, y, z).replaceAll("\\+", " + ").replaceAll("\\-", " - ").trim();
     }
 
-    // TODO: Winkel und Normalenvektor bestimmen
     public static Quaternion getRotation(Quaternion q1, Quaternion q2) {
-        Vector v1 = V(q1);
-        Vector v2 = V(q2);
-        Vector axis = v1.cross(v2);
-        double angle = acos(v1.dot(v2) / (v1.norm() * v2.norm()));
-        System.out.println(angle * 180 / PI);
-        // FIXME: edge cases
+        double angle = acos(q1.dot(q2).w / (q1.norm() * q2.norm()));
+        if (angle == 0) {
+            return H(1); // Identity
+        }
+        Quaternion axis = q1.cross(q2).normalize();
         return H(angle, axis);
     }
 
@@ -151,6 +169,20 @@ public class Quaternion {
         double cosHalfAngle = cos(angle / 2);
         return new Quaternion(cosHalfAngle, sinHalfAngle * axis.x, sinHalfAngle * axis.y, sinHalfAngle * axis.z);
     }
+
+    /**
+     * Assumes the axis quaternion is normal and pure imaginary.
+     *
+     * @param angle
+     * @param axis
+     * @return
+     */
+    public static Quaternion H(double angle, Quaternion axis) {
+        double sinHalfAngle = sin(angle / 2);
+        double cosHalfAngle = cos(angle / 2);
+        return new Quaternion(cosHalfAngle, sinHalfAngle * axis.x, sinHalfAngle * axis.y, sinHalfAngle * axis.z);
+    }
+
     public static Quaternion H(Vector vector) {
         return new Quaternion(0, vector.x, vector.y, vector.z);
     }
