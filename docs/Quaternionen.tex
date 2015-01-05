@@ -1,0 +1,99 @@
+\documentclass[12pt]{article}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+
+\title{Quaternionen mit Java}
+\author{Christian Basler}
+\date{}
+
+\begin{document}
+  \maketitle
+
+  \tableofcontents
+
+  \section{Zusammenfassung}
+
+
+
+  \section{Grundlagen}
+
+  Quaternionen $\mathbb{H}$ erweitern die Komplexen Zahlen $\mathbb{C}$ um die Komponenten $\mathrm{j}$ und $\mathrm{k}$.
+  $$ q = q_0 + q_1 \mathrm{i} + q_2 \mathrm{j} + q_3 \mathrm{k} $$
+  Dabei gilt $\mathrm{i}^2 = \mathrm{j}^2 = \mathrm{k}^2 = \mathrm{i}\mathrm{j}\mathrm{k} = -1$ und daher auch z.B. $\mathrm{i}\mathrm{j} = \mathrm{k}$ und $\mathrm{j}\mathrm{k} = \mathrm{i}$.
+
+  Euklidische Vektoren können dabei wie folgt in eine Quaternion abgebildet werden:
+  $$ q_{\vec{v}} = 0 + v_x \mathrm{i} + v_y \mathrm{j} + v_z \mathrm{k} $$
+  Daher wird der Imaginärteil einer Quaternion auch Vektorteil genannt. Eine solche Quaternion, welche nur aus Vektorteil besteht, wird auch als \textit{reine Quaternion} bezeichnet.
+
+
+  \subsection{Polardarstellung}
+
+  Quaternionen $\notin \mathbb{R}$ lassen sich eindeutig in der Form
+  $$ q = \lvert q \rvert (\cos{\phi} + \epsilon \sin{\phi}) $$
+  darstellen mit dem Betrag
+  $$ \lvert q \rvert = \sqrt{q_0^2 + q_1^2 + q_2^2 + q_3^2} $$
+  dem Polarwinkel
+  $$ \phi := \arccos{q} = \arccos{\mathrm{Re} q} $$
+  und der reinen Einheitsquaternion
+  $$ \epsilon = \frac{\mathrm{Im} q}{\lvert \mathrm{Im} q \rvert} $$
+
+
+  \subsection{Rotation}
+
+  Quaternionen erlauben eine elegante Darstellung von Drehungen im dreidimensionalen Raum:
+  \begin{align*}
+    y &= q x q^{-1} = q x \bar{q} \\
+	q &= \cos{\frac{\alpha}{2}} + \epsilon \sin{\frac{\alpha}{2}}
+  \end{align*}
+  $q$ ist dabei eine Einheitsquaternion\footnote{$\lvert q \rvert = 1$} und stellt eine Drehung um Achse $\epsilon$ mit Winkel $\alpha$ dar.
+
+
+
+  \section{Java-Bibliothek}
+
+  Die Java-Bibliothek stellt ein Objekt "Quaternion" mit folgenden Methoden zur Verfügung:
+  \begin{itemize}
+    \item q.add(r) $= q + r$
+    \item q.subtract(r) $= q - r$
+    \item q.multiply(r) $= q r$
+    \item q.conjugate() $= \bar{q}$
+    \item q.norm() $= \lvert q \rvert$
+    \item q.normalize() $= \frac{q}{\lvert q \rvert}$
+    \item q.reciprocal() $= q^{-1}$
+    \item q.divide(r) $= q r^{-1}$
+    \item q.rotate($\theta$, x, y, z) $= Rotation\ um\ Achse\ (x, y, z) mit Winkel \theta$
+    \item q.exp() $= e^q$
+    \item q.ln() $= \ln q$
+    \item q.getRe() $= \mathbf{Re}\ q$
+    \item q.getIm() $= \mathbf{Im}\ q$
+    \item q.getPhi()
+    \item q.getEpsilon()
+    \item q.equals(r, $\delta$) $= |q - r|^2 < \delta$
+    \item q.equals(r) = q.equals(r, Quaternion.DELTA)
+  \end{itemize}
+
+  Zum Erstellen neuer Quaternionen besteht ausserdem die statische Methode \texttt{H} in folgenden Ausführungen:
+  \begin{itemize}
+    \item H($q_0$, $q_1$, $q_2$, $q_3$) $= q_0 + q_1 \mathrm{i} + q_2 \mathrm{j} + q_3 \mathrm{k}$
+    \item H(x, y, z) $= x \mathrm{i} + y \mathrm{j} + z \mathrm{k}$
+    \item H(w) $= w$
+    \item H($\alpha$, $\vec{v}$) $= \cos\frac{\alpha}{2} + \mathrm{i} \sin\frac{\alpha}{2} v_x + \mathrm{j} \sin\frac{\alpha}{2} v_y + \mathrm{k} \sin\frac{\alpha}{2} v_z$
+    \item H([x, y, z]), H([w, x, y, z])
+  \end{itemize}
+
+  Für Fälle wo euklidische Vektoren benötigt werden, z.B. beim Konstruktor \texttt{H($\alpha$, $\vec{v}$)}, gibt es ausserdem die Klasse \texttt{Vector}, welche jedoch nur sehr eingeschränkte Funktionen bietet.
+
+  \section{Beispielanwendungen}
+  \subsection{Wo ist unten?}
+  \subsection{Künstlicher Horizont}
+
+  \section{Diskussion}
+
+  \section{Literatur}
+  %\printbibliography
+
+  \section{Anhang}
+
+\end{document}
