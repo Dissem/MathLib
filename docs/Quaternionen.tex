@@ -63,9 +63,11 @@
     \item q.normalize() $= \frac{q}{\lvert q \rvert}$
     \item q.reciprocal() $= q^{-1}$
     \item q.divide(r) $= q r^{-1}$
-    \item q.rotate($\theta$, x, y, z) $= Rotation\ um\ Achse\ (x, y, z) mit Winkel \theta$
+    \item q.rotate($\theta$, x, y, z) $=$ Rotation\ um\ Achse\ $(x, y, z)$ mit Winkel $\theta$
     \item q.exp() $= e^q$
     \item q.ln() $= \ln q$
+    \item q.dot(r) $= q \cdot r = q_0 r_0 + q_1 r_1 + q_2 r_2 + q_3 r_3$
+    \item q.cross(r) $= \vec{q} \times \vec{r}$ (d.h. $q_0$ und $r_0$ werden ignoriert)
     \item q.getRe() $= \mathbf{Re}\ q$
     \item q.getIm() $= \mathbf{Im}\ q$
     \item q.getPhi()
@@ -81,6 +83,7 @@
     \item H(w) $= w$
     \item H($\alpha$, $\vec{v}$) $= \cos\frac{\alpha}{2} + \mathrm{i} \sin\frac{\alpha}{2} v_x + \mathrm{j} \sin\frac{\alpha}{2} v_y + \mathrm{k} \sin\frac{\alpha}{2} v_z$
     \item H([x, y, z]), H([w, x, y, z])
+    \item getRotation(p, q) $= r$, so dass $r p \bar{r} = q$
   \end{itemize}
 
   Für Fälle wo euklidische Vektoren benötigt werden, z.B. beim Konstruktor \texttt{H($\alpha$, $\vec{v}$)}, gibt es ausserdem die Klasse \texttt{Vector}, welche jedoch nur sehr eingeschränkte Funktionen bietet.
