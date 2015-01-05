@@ -1,30 +1,37 @@
 import ch.dissem.libraries.math.Quaternion;
+import ch.dissem.libraries.math.Vector;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static ch.dissem.libraries.math.Quaternion.*;
-import static java.lang.Math.PI;
+import static ch.dissem.libraries.math.Vector.V;
+import static java.lang.Math.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
+ * Tests the {@link Quaternion}.
+ * <p/>
  * Created by Christian Basler on 03.11.14.
  */
 public class QuaternionTest {
     @Test
     public void ensureQuaternionIsPrintedCorrectly() {
-        Quaternion q = new Quaternion(1, 1, 1, 1);
+        Quaternion q = H(1, 1, 1, 1);
         assertEquals("1.00 + 1.00i + 1.00j + 1.00k", q.toString());
     }
 
     @Test
     public void testAddition() {
-        double w1 = 100 * Math.random();
-        double x1 = 100 * Math.random();
-        double y1 = 100 * Math.random();
-        double z1 = 100 * Math.random();
-        double w2 = 100 * Math.random();
-        double x2 = 100 * Math.random();
-        double y2 = 100 * Math.random();
-        double z2 = 100 * Math.random();
+        double w1 = 100 * random();
+        double x1 = 100 * random();
+        double y1 = 100 * random();
+        double z1 = 100 * random();
+        double w2 = 100 * random();
+        double x2 = 100 * random();
+        double y2 = 100 * random();
+        double z2 = 100 * random();
 
         Quaternion q1 = H(w1, x1, y1, z1);
         Quaternion q2 = H(w2, x2, y2, z2);
@@ -44,14 +51,14 @@ public class QuaternionTest {
 
     @Test
     public void testSubtraction() {
-        double w1 = 100 * Math.random();
-        double x1 = 100 * Math.random();
-        double y1 = 100 * Math.random();
-        double z1 = 100 * Math.random();
-        double w2 = 100 * Math.random();
-        double x2 = 100 * Math.random();
-        double y2 = 100 * Math.random();
-        double z2 = 100 * Math.random();
+        double w1 = 100 * random();
+        double x1 = 100 * random();
+        double y1 = 100 * random();
+        double z1 = 100 * random();
+        double w2 = 100 * random();
+        double x2 = 100 * random();
+        double y2 = 100 * random();
+        double z2 = 100 * random();
 
         Quaternion q1 = H(w1, x1, y1, z1);
         Quaternion q2 = H(w2, x2, y2, z2);
@@ -118,7 +125,46 @@ public class QuaternionTest {
         assertEquals(H(0, 3, 1, 2), H(0, 1, 2, 3).rotate(2 * PI / 3, 1, 1, 1));
     }
 
+    @Test
+    @Ignore
+    public void testGetRotation() {
+        double theta = PI / 2, x = 0, y = 0, z = -2;
+        double n = sqrt(x * x + y * y + z * z);
+        double sinFactor = sin(theta / 2) / n;
+        Quaternion q = H(cos(theta / 2), x * sinFactor, y * sinFactor, z * sinFactor);
+
+        assertEquals(H(cos(-PI / 4), 0, 0, sin(-PI / 4)), Quaternion.getRotation(H(0, 0, 1, 0), H(0, 1, 0, 0)));
+        assertEquals(H(cos(-PI / 4), 0, 0, sin(-PI / 4)), Quaternion.getRotation(H(0, -1, PI, 2), H(0, PI, 1, 2)));
+//        assertEquals(H(0.8, 0.18, 0.35, 0.46), q);
+
+//        assertEquals(H(0, PI, 1, 2), H(0, -1, PI, 2).rotate(PI / 2, 0, 0, -2));
+//        assertEquals(H(0, 3, 1, 2), H(0, 1, 2, 3).rotate(2 * PI / 3, 1, 1, 1));
+    }
+
+    @Test
+    public void testExpLn() {
+        Quaternion q = getRandom().normalize().multiply(H(Math.PI * random()));
+        assertEquals(q, q.ln().exp());
+
+        assertTrue(q.getIm().norm() < Math.PI);
+        assertEquals(q, q.exp().ln());
+
+        q = getRandom().normalize().multiply(H(50 * random()));
+        assertEquals(q, q.ln().exp());
+    }
+
+    @Test
+    public void testSpecialValues() {
+        Quaternion q = getRandom();
+        assertEquals(H(q.w), q.getRe());
+        assertEquals(H(q.x, q.y, q.z), q.getIm());
+
+        q = H(PI, V(1, 1, 1));
+        assertEquals(PI / 2, q.getPhi(), Quaternion.DELTA);
+        assertEquals(H(1, 1, 1).normalize(), q.getEpsilon());
+    }
+
     private Quaternion getRandom() {
-        return H(100 * Math.random(), 100 * Math.random(), 100 * Math.random(), 100 * Math.random());
+        return H(100 * random(), 100 * random(), 100 * random(), 100 * random());
     }
 }

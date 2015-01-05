@@ -1,19 +1,17 @@
 package ch.dissem.libraries.math;
 
-import java.text.DecimalFormat;
 import java.util.Locale;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
+import static ch.dissem.libraries.math.Vector.V;
+import static java.lang.Math.*;
 
 /**
  * An implementation of <a href="http://en.wikipedia.org/wiki/Quaternion">Quaternions
  * as described by William Rowan Hamilton</a>.
  * <p/>
  * To save you some writing there are helper methods H to create Quaternion
- * representations of cartesian coordinates, scalars and of course full
- * Quaternions.
+ * representations of cartesian coordinates, rotations, scalars and of course
+ * full Quaternions.
  * <p/>
  * Created by Christian Basler on 03.11.14.
  */
@@ -23,7 +21,7 @@ public class Quaternion {
 
     public static final Quaternion ZERO = new Quaternion(0, 0, 0, 0);
 
-    public Quaternion(double w, double x, double y, double z) {
+    protected Quaternion(double w, double x, double y, double z) {
         this.w = w;
         this.x = x;
         this.y = y;
@@ -81,6 +79,34 @@ public class Quaternion {
         return q.multiply(this).multiply(q.reciprocal());
     }
 
+    public Quaternion exp() {
+        Quaternion im = getIm();
+        double imNorm = im.norm();
+        return H(Math.exp(w)).multiply(H(cos(imNorm)).add(im.normalize().multiply(H(sin(imNorm)))));
+    }
+
+    public Quaternion ln() {
+        double norm = norm();
+        return H(Math.log(norm)).add(getIm().normalize().multiply(H(acos(w / norm))));
+    }
+
+    public Quaternion getRe() {
+        return new Quaternion(w, 0, 0, 0);
+    }
+
+    public Quaternion getIm() {
+        return new Quaternion(0, x, y, z);
+    }
+
+    public double getPhi() {
+        return acos(w / norm());
+    }
+
+    public Quaternion getEpsilon() {
+        Quaternion im = getIm();
+        return im.divide(H(im.norm()));
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Quaternion && equals((Quaternion) obj, DELTA);
@@ -96,6 +122,17 @@ public class Quaternion {
         return String.format(Locale.US, "%.2f%+.2fi%+.2fj%+.2fk", w, x, y, z).replaceAll("\\+", " + ").replaceAll("\\-", " - ").trim();
     }
 
+    // TODO: Winkel und Normalenvektor bestimmen
+    public static Quaternion getRotation(Quaternion q1, Quaternion q2) {
+        Vector v1 = V(q1);
+        Vector v2 = V(q2);
+        Vector axis = v1.cross(v2);
+        double angle = acos(v1.dot(v2) / (v1.norm() * v2.norm()));
+        System.out.println(angle * 180 / PI);
+        // FIXME: edge cases
+        return H(angle, axis);
+    }
+
     public static Quaternion H(double h, double hi, double hj, double hk) {
         return new Quaternion(h, hi, hj, hk);
     }
@@ -106,5 +143,35 @@ public class Quaternion {
 
     public static Quaternion H(double scale) {
         return new Quaternion(scale, 0, 0, 0);
+    }
+
+    public static Quaternion H(double angle, Vector axis) {
+        axis = axis.normalize();
+        double sinHalfAngle = sin(angle / 2);
+        double cosHalfAngle = cos(angle / 2);
+        return new Quaternion(cosHalfAngle, sinHalfAngle * axis.x, sinHalfAngle * axis.y, sinHalfAngle * axis.z);
+    }
+    public static Quaternion H(Vector vector) {
+        return new Quaternion(0, vector.x, vector.y, vector.z);
+    }
+
+    public static Quaternion H(double[] array) {
+        if (array.length == 3) {
+            return new Quaternion(0, array[0], array[1], array[2]);
+        } else if (array.length == 4) {
+            return new Quaternion(array[0], array[1], array[2], array[3]);
+        } else {
+            throw new IllegalArgumentException("Array with either 3 or 4 elements expected");
+        }
+    }
+
+    public static Quaternion H(float[] array) {
+        if (array.length == 3) {
+            return new Quaternion(0, array[0], array[1], array[2]);
+        } else if (array.length == 4) {
+            return new Quaternion(array[0], array[1], array[2], array[3]);
+        } else {
+            throw new IllegalArgumentException("Array with either 3 or 4 elements expected");
+        }
     }
 }
