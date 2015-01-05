@@ -90,6 +90,18 @@
 
   \section{Beispielanwendungen}
   \subsection{Wo ist unten?}
+
+  Die App soll immer nach unten zeigen. Dazu gibt es bei modernen Smartphones grundsätzlich zwei Sensoren, den Beschleunigungssensor und das Gyroskop. Ersterer misst unter anderem die Erdbeschleunigung, zeigt also recht schön nach unten. Allerdings verhällt er sich sehr nervös bei den geringsten Erschütterungen. Das Gyroskop misst Winkelgeschwindigkeiten entlang der drei Achsen, aus welchen man die Lage, und damit auch "unten" rekonstruieren kann. Da dabei viele aufeinanderfolgende Messwerte multipliziert werden, entsteht ein sogenannter Drift, das heisst das "Unten" zeigt plötzlich irgendwo anders hin.
+
+  Um ein gutes Resultat zu erhalten, muss man deshalb die Messungen der beiden Instrumente kombinieren. Der Beschleunigungssensor soll helfen, den Drift zu vermeiden, und das Gyroskop soll den Beschleunigungssensor stabilisieren. Dazu werden die Daten des Beschleunigungssensors $a_t$ mit einem Tiefpass gefiltert und für eine bessere Reaktion mit den Gyroskopdaten $r_t$ kombiniert. Werden dabei Quaternionen verwendet, können diese durchgehend verwendet werden\footnote{Ausser beim Auslesen und bei der Arbeit mit OpenGL, wo Rotationsmatrizen verlangt werden.}. Im Wesentlichen sieht dies so aus:
+  \begin{align*}
+    a' &= a C_{LPF} +  a_t (1 - C_{LPF}) \\
+    g' &= r_t g \bar{r_t}    \\
+    f' &= (1 - C_{SFF}) a' + C_{SFF} g'
+  \end{align*}
+  Wobei der Koeffizient für den Tiefpassfilter $C_{LPF}$ und derjenige für den Sensorfusion-Filter $C_{SFF} \in \mathbb{R}$.
+
+
   \subsection{Künstlicher Horizont}
 
   \section{Diskussion}
