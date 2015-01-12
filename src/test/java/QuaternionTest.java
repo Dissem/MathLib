@@ -12,7 +12,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Tests the {@link Quaternion}.
- * <p/>
+ * <p>
  * Created by Christian Basler on 03.11.14.
  */
 public class QuaternionTest {
@@ -126,6 +126,15 @@ public class QuaternionTest {
     }
 
     @Test
+    public void testRotationBack() {
+        Quaternion v = getRandom().getIm();
+        double angle = random() * 10;
+        Vector axis = getRandom().getVector();
+        Quaternion r = H(angle, axis);
+        assertEquals(v, v.rotate(r).rotateBack(r));
+    }
+
+    @Test
     public void testGetFromAngleAndAxis() {
         for (int i = 0; i < 1000; i++)
             assertEquals(1.0, H(random() * 20, getRandom().getVector()).norm(), Quaternion.DELTA);
@@ -167,8 +176,19 @@ public class QuaternionTest {
         assertEquals(H(q.x, q.y, q.z), q.getIm());
 
         q = H(PI, V(1, 1, 1));
-        assertEquals(PI / 2, q.getPhi(), Quaternion.DELTA);
-        assertEquals(H(1, 1, 1).normalize(), q.getEpsilon());
+        assertEquals(PI, q.getRotationAngle(), Quaternion.DELTA);
+        assertEquals(H(1, 1, 1).normalize(), q.getRotationAxis());
+    }
+
+    @Test
+    public void testScaledRotation() {
+        Quaternion q = H(PI, V(1, 2, 3));
+        Quaternion r = q.getScaledRotation(0.5);
+        assertEquals(q.getRotationAxis(), r.getRotationAxis());
+        assertEquals(PI / 2, r.getRotationAngle(), Quaternion.DELTA);
+
+        assertEquals(IDENTITY, q.getScaledRotation(0));
+        assertEquals(IDENTITY, IDENTITY.getScaledRotation(5));
     }
 
     private Quaternion getRandom() {
