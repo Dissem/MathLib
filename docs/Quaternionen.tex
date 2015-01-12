@@ -3,6 +3,7 @@
 \usepackage{amsfonts}
 \usepackage[ngerman]{babel}
 \usepackage[utf8]{inputenc}
+\usepackage{hyperref}
 
 \title{Quaternionen mit Java}
 \author{Christian Basler}
@@ -104,10 +105,29 @@
 
   \subsection{Künstlicher Horizont}
 
+  Eine Erweiterung der ersten App. Diese soll auch die Himmelsrichtung anzeigen, also die grundsätzliche Orientierung im Raum.
+
+
   \section{Diskussion}
 
+  Die Umsetzung der Quaternionen als Objekt war ziemlich einfach. Etwas schade ist nur, dass Java keine Möglichkeit bietet, Additionen als $$a + b$$ darzustellen anstatt \texttt{a.add(b)}. Ich habe mir deshalb auch überlegt die Bibliothek in Scala umzusetzen, es ist aber nicht so einfach damit Apps zu schreiben, was den grössten Vorteil dieser Bibliothek wieder zunichte machen würde.
+
+  Da bei den Android-Sensoren durchgehend Zahlen vom Typ \texttt{float} verwendet werden, habe ich mir auch überlegt eine Version zu machen die darauf basiert anstatt \texttt{double}, doch auf modernen Geräten scheinen die letzteren dank Hardwarebeschleunigung schneller zu sein, der Zusatzaufwand lohnt sich also vermutlich nicht.
+
+  Die "Wo ist unten"-App erwies sich als gutes Beispiel, wie einfach die Arbeit mit Quaternionen sein kann. Das grösste Problem war die Darstellung, mein Versuch mit OpenGL ist kläglich daran gescheitert dass ich ihm nicht beibringen konnte die richtigen Seiten zu zeichenen.
+
+  Zuerst dachte ich, der künstliche Horizont wäre fast ein bisschen zu einfach nach "Unten", es ist ja schliesslich das gleiche Problem nur mit einer Drehung mehr. Ganz so einfach war es dann doch nicht, und ich musste auf eine Drehmatrix ausweichen. Ich vermute immer noch es geht auch einfacher, aber ich konnte die Lösung dazu nicht finden.
+
+
   \section{Literatur}
-  %\printbibliography
+
+  Wikipedia ist immer wieder eine gute Anlaufstelle für mathematische Fragen. Insbesondere die englischsprachige Version behandelt Quaternionen sehr ausführlich.
+
+  \begin{itemize}
+    \item \url{http://de.wikipedia.org/wiki/Quaternion}
+    \item \url{http://en.wikipedia.org/wiki/Quaternion}
+    \item \url{http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation}
+  \end{itemize}
 
   \section{Anhang}
 
