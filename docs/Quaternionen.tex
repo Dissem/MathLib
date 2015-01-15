@@ -4,6 +4,9 @@
 \usepackage[ngerman]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{wrapfig}
 
 \title{Quaternionen mit Java}
 \author{Christian Basler}
@@ -11,6 +14,11 @@
 
 \begin{document}
   \maketitle
+
+\begin{figure}[h]
+\includegraphics[width=0.2\textwidth]{logo.png}
+\centering
+\end{figure}
 
   \tableofcontents
 
@@ -92,9 +100,16 @@
   \section{Beispielanwendungen}
   \subsection{Wo ist unten?}
 
+\begin{wrapfigure}{r}{0.25\textwidth} %this figure will be at the right
+    \centering
+    \includegraphics[width=0.3\textwidth]{down.png}
+    \caption{Wo ist unten?}
+    \label{fig:screenshot_down}
+\end{wrapfigure}
+
   Die App soll immer nach unten zeigen. Dazu gibt es bei modernen Smartphones grundsätzlich zwei Sensoren, den Beschleunigungssensor und das Gyroskop. Ersterer misst unter anderem die Erdbeschleunigung, zeigt also recht schön nach unten. Allerdings verhällt er sich sehr nervös bei den geringsten Erschütterungen. Das Gyroskop misst Winkelgeschwindigkeiten entlang der drei Achsen, aus welchen man die Lage, und damit auch "unten" rekonstruieren kann. Da dabei viele aufeinanderfolgende Messwerte multipliziert werden, entsteht ein sogenannter Drift, das heisst das "Unten" zeigt plötzlich irgendwo anders hin.
 
-  Um ein gutes Resultat zu erhalten, muss man deshalb die Messungen der beiden Instrumente kombinieren. Der Beschleunigungssensor soll helfen, den Drift zu vermeiden, und das Gyroskop soll den Beschleunigungssensor stabilisieren. Dazu werden die Daten des Beschleunigungssensors $a_t$ mit einem Tiefpass gefiltert und für eine bessere Reaktion mit den Gyroskopdaten $r_t$ kombiniert. Werden dabei Quaternionen verwendet, können diese durchgehend verwendet werden\footnote{Ausser beim Auslesen und bei der Arbeit mit OpenGL, wo Rotationsmatrizen verlangt werden.}. Im Wesentlichen sieht dies so aus:
+  Um ein gutes Resultat zu erhalten, muss man deshalb die Messungen der beiden Instrumente kombinieren. Der Beschleunigungssensor soll helfen, den Drift zu vermeiden, und das Gyroskop soll den Beschleunigungssensor stabilisieren. Dazu werden die Daten des Beschleunigungssensors $a_t$ mit einem Tiefpass gefiltert und für eine bessere Reaktion mit den Gyroskopdaten $r_t$ kombiniert. Werden dabei Quaternionen eingesetzt, können diese durchgehend verwendet werden\footnote{Ausser beim Auslesen und bei der Arbeit mit OpenGL, wo Rotationsmatrizen verlangt werden.}. Im Wesentlichen sieht dies so aus:
   \begin{align*}
     a' &= a C_{LPF} +  a_t (1 - C_{LPF}) \\
     g' &= r_t g \bar{r_t}    \\
@@ -105,12 +120,25 @@
 
   \subsection{Künstlicher Horizont}
 
+\begin{wrapfigure}{r}{0.25\textwidth} %this figure will be at the right
+    \centering
+    \includegraphics[width=0.3\textwidth]{artificial-horizon.png}
+    \caption{Künstlicher Horizont}
+    \label{fig:screenshot_artificial_horizon}
+\end{wrapfigure}
+
   Eine Erweiterung der ersten App. Diese soll auch die Himmelsrichtung anzeigen, also die grundsätzliche Orientierung im Raum.
+
+  Im gegensatz zur ersten App wurden hier nicht Vektoren fusioniert, sondern die Drehung von der Basisausrichtung (das Gerät liegt flach auf dem Tisch, mit der oberseite in Richtung Norden) zur tatsächlichen Ausrichtung. Dank der Zusatzfunktion \texttt{q.getScaledRotation(factor)} der Bibliothek, im folgenden als $$q_{factor}$$ dargestellt, liess sich zumindest dies sehr elegant lösen:
+  \begin{align*}
+    f' &= (f g)_{1-C_SFF} r_{C_{SFF}}
+  \end{align*}
+  Wobei $r$ die kombinierte Drehung von Kompass und Beschleunigungssensor ist.  Da hier schlussendlich doch eine Drehmatrix verwendet werden musste, machen die Quaternionen etwas weniger Sinn als beim ersten Beispiel\footnote{...oder ich habe einfach die elegante Lösung übersehen}.
 
 
   \section{Diskussion}
 
-  Die Umsetzung der Quaternionen als Objekt war ziemlich einfach. Etwas schade ist nur, dass Java keine Möglichkeit bietet, Additionen als $$a + b$$ darzustellen anstatt \texttt{a.add(b)}. Ich habe mir deshalb auch überlegt die Bibliothek in Scala umzusetzen, es ist aber nicht so einfach damit Apps zu schreiben, was den grössten Vorteil dieser Bibliothek wieder zunichte machen würde.
+  Die Umsetzung der Quaternionen als Objekt war ziemlich einfach. Etwas schade ist nur, dass Java keine Möglichkeit bietet, beispielsweise Additionen als $a + b$ darzustellen anstatt \texttt{a.add(b)}. Ich habe mir deshalb auch überlegt die Bibliothek in Scala umzusetzen. Damit ist es aber nicht so einfach Apps zu schreiben, was den grössten Vorteil dieser Bibliothek wieder zunichte machen würde.
 
   Da bei den Android-Sensoren durchgehend Zahlen vom Typ \texttt{float} verwendet werden, habe ich mir auch überlegt eine Version zu machen die darauf basiert anstatt \texttt{double}, doch auf modernen Geräten scheinen die letzteren dank Hardwarebeschleunigung schneller zu sein, der Zusatzaufwand lohnt sich also vermutlich nicht.
 
