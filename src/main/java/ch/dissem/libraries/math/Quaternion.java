@@ -2,7 +2,6 @@ package ch.dissem.libraries.math;
 
 import java.util.Locale;
 
-import static ch.dissem.libraries.math.Vector.V;
 import static java.lang.Math.*;
 
 /**
@@ -12,8 +11,9 @@ import static java.lang.Math.*;
  * To save you some writing there are helper methods H to create Quaternion
  * representations of cartesian coordinates, rotations, scalars and of course
  * full Quaternions.
- * <p>
- * Created by Christian Basler on 03.11.2014.
+ * </p>
+ *
+ * @author Christian Basler
  */
 public class Quaternion {
     public static final double DELTA = 0.00000000000001;

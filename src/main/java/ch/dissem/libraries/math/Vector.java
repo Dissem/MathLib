@@ -5,7 +5,10 @@ import java.util.Locale;
 import static java.lang.Math.sqrt;
 
 /**
- * Created by chris on 08.12.14.
+ * A simple vector class. It is mainly used as a helper class for some vector based
+ * quaternion methods, and hardly tested.
+ *
+ * @author Christian Basler
  */
 public class Vector {
     public static final Vector UNIT_X = new Vector(1, 0, 0);
