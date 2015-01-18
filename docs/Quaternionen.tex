@@ -8,6 +8,7 @@
 \usepackage{float}
 \usepackage{wrapfig}
 \usepackage{textgreek}
+\usepackage{centernot}
 
 \addto\captionsngerman{
   \renewcommand{\figurename}{Abb.}
@@ -63,7 +64,7 @@
 
   \section{Java-Bibliothek}
 
-  Die Java-Bibliothek stellt eine Klasse \texttt{Quaternion} mit den darauf möglichen Operatoren zur Verfügung\footnote{Die Operatoren und Methoden werden in Anhang A aufgelistet}. Die Quaternionen sind unveränderlich, jede Operation erzeugt folglich eine neue Quaternion.
+  Die Java-Bibliothek stellt eine Klasse \texttt{Quaternion} mit den darauf möglichen Operatoren zur Verfügung\footnote{Die Operatoren und Methoden werden in Anhang \ref{methods} aufgelistet}. Die Quaternionen sind unveränderlich, jede Operation erzeugt folglich eine neue Quaternion.
 
   Aufgrund der Einschränkungen von Java sind alle Operationen als Methoden implementiert, $\bar{q}$ heisst also beispielsweise \texttt{q.conjugate()}.
 
@@ -71,7 +72,8 @@
   \begin{itemize}
     \item \texttt{q.norm()}: gibt im Gegensatz zu den anderen Methoden ein \texttt{double} zurück anstelle einer \texttt{Quaternion}. Ausserdem gibt es verschiedene Auffassungen, ob diese dem Betrag oder dem Quadrat des Betrags entsprechen soll. In meiner Implementierung entspricht sie dem Betrag.
     \item \texttt{q.rotate(\texttheta, x, y, z)}: ist eine Hilfsmethode, falls man nicht extra ein Quaternion erzeugen möchte um die Rotation zu definieren.
-    \item \texttt{q.equals(r)}, \texttt{q.hashCode()}: da man \texttt{double}-Werte nicht direkt miteinander vergleichen kann, wird verglichen ob $\lvert \lvert q \rvert - \lvert r \rvert \rvert < \Delta$. Um dies genauer zu steuern kann das \textdelta auch als Argument mitgegeben werden. Da diese Art der Implementierung Probleme mit der Hash-Definition ergeben (\texttt{q.equals(r)} $\implies$ \texttt{q.hashCode() == r.hashCode()}).
+    \item \texttt{q.equals(r)}: da man \texttt{double}-Werte nicht direkt miteinander vergleichen kann, wird verglichen ob $\lvert \lvert q \rvert - \lvert r \rvert \rvert < \Delta$. Um dies genauer zu steuern kann das \textDelta{} auch als Argument mitgegeben werden.
+    \item \texttt{q.hashCode()}: aufgrund der Implementation von \texttt{equals} wurde der Hash als 1 definiert, denn es gilt ja bekanntlich \texttt{q.equals(r)} $\implies$ \texttt{q.hashCode() == r.hashCode()}, aber \texttt{q.hashCode() == r.hashCode()} $\centernot\implies$ \texttt{q.equals(r)}. Das bedeutet natürlich, dass man Quaternionen nicht in Hash-basierten Datenstrukturen ablegen sollte, aber das ist grundsätzlich für Gleitkommazahlen nicht zu empfehlen.
     \item \texttt{q.getScaledRotation(s)}: ergibt ein Quaternion mit gleicher Drehachse und einem um $s$ gestreckten Winkel.
   \end{itemize}
 
@@ -91,10 +93,9 @@
     \caption{Wo ist unten?}
     \label{fig:screenshot_down}
 \end{wrapfigure}
-  Die App soll immer nach unten zeigen. Dazu gibt es bei modernen Smartphones grundsätzlich zwei Sensoren, den Beschleunigungssensor und das Gyroskop. Ersterer misst unter anderem die Erdbeschleunigung, zeigt also recht schön nach unten. Allerdings verhällt er sich sehr nervös bei den geringsten Erschütterungen. Das Gyroskop misst
-Winkelgeschwindigkeiten entlang der drei Achsen, aus welchen man die Lage, und damit auch ``unten'' rekonstruieren kann. Da dabei viele aufeinanderfolgende Messwerte multipliziert werden, entsteht ein sogenannter Drift, das heisst ``unten'' zeigt plötzlich irgendwo anders hin.
+  Die App zeigt eine Pyramide, deren Spitze immer nach unten zeigen soll. Dazu gibt es bei modernen Smartphones grundsätzlich zwei Sensoren, den Beschleunigungssensor und das Gyroskop. Ersterer misst unter anderem die Erdbeschleunigung, zeigt also recht schön nach unten. Allerdings verhält er sich sehr nervös bei den geringsten Erschütterungen. Das Gyroskop misst Winkelgeschwindigkeiten entlang der drei Achsen, aus welchen man die Lage, und damit auch ``unten'' rekonstruieren kann. Da dabei viele aufeinanderfolgende Messwerte multipliziert werden, entsteht ein sogenannter Drift, das heisst ``unten'' zeigt plötzlich irgendwo anders hin.
 
-  Um ein gutes Resultat zu erhalten, muss man deshalb die Messungen der beiden Instrumente kombinieren. Der Beschleunigungssensor soll helfen, den Drift zu vermeiden, und das Gyroskop soll den Beschleunigungssensor stabilisieren. Dazu werden die Daten des Beschleunigungssensors $a_t$ mit einem Tiefpass gefiltert und für eine bessere Reaktion mit den Gyroskopdaten $r_t$ kombiniert. Werden dabei Quaternionen eingesetzt, können diese durchgehend verwendet werden\footnote{Ausser beim Auslesen und bei der Arbeit mit der 3D-Bibliothek Rajawali, wo Eulersche Winkel verlangt werden.}. Im Wesentlichen sieht dies so aus:
+  Um ein gutes Resultat zu erhalten, muss man deshalb die Messungen der beiden Instrumente kombinieren. Der Beschleunigungssensor soll helfen den Drift zu vermeiden, und das Gyroskop soll den Beschleunigungssensor stabilisieren. Dazu werden die Daten des Beschleunigungssensors $a_t$ mit einem Tiefpass gefiltert und für eine bessere Reaktion mit den Gyroskopdaten $r_t$ kombiniert. Werden dabei Quaternionen eingesetzt, können diese durchgehend verwendet werden\footnote{Ausser beim lesen der Messwerte und bei der Arbeit mit der 3D-Bibliothek Rajawali, wo Eulersche Winkel verlangt werden.}. Im Wesentlichen sieht dies so aus:
   \begin{align*}
     a' &= a C_{LPF} +  a_t (1 - C_{LPF}) \\
     g' &= r_t g \bar{r_t}    \\
@@ -116,23 +117,42 @@ Winkelgeschwindigkeiten entlang der drei Achsen, aus welchen man die Lage, und d
 \end{wrapfigure}
   Eine Erweiterung der ersten App. Diese soll auch die Himmelsrichtung anzeigen, also die grundsätzliche Orientierung im Raum.
 
-  Im gegensatz zur ersten App wurden hier nicht Vektoren fusioniert, sondern die Drehung von der Basisausrichtung (das Gerät liegt flach auf dem Tisch, mit der oberseite in Richtung Norden) zur tatsächlichen Ausrichtung. Dank der Methode \texttt{q.getScaledRotation(factor)}, im folgenden als $q_{factor}$ dargestellt, liess sich zumindest dies sehr elegant lösen:
-  $$ f' = (f g)_{1-C_SFF} r_{C_{SFF}} $$
-  Wobei $r$ die kombinierte Drehung von Kompass und Beschleunigungssensor ist.  Da hier schlussendlich doch eine Drehmatrix verwendet werden musste, machen die Quaternionen etwas weniger Sinn als beim ersten Beispiel\footnote{...oder ich habe einfach die elegante Lösung übersehen}.
+  Im Gegensatz zur ersten App wurden hier nicht Vektoren fusioniert, sondern die Drehung von der Basisausrichtung (das Gerät liegt flach auf dem Tisch, mit der Oberseite in Richtung Norden) zur tatsächlichen Ausrichtung. Dank der Methode \texttt{q.getScaledRotation(factor)}, im folgenden als $q_{factor}$ dargestellt, liess sich zumindest dies sehr elegant lösen:
+  $$ f' = (f g)_{(1-C)} r_{C} $$
+  Wobei $r$ die kombinierte Drehung von Kompass und Beschleunigungssensor ist.  Da hier schlussendlich doch eine Drehmatrix verwendet werden musste, machen die Quaternionen etwas weniger Sinn als beim ersten Beispiel.
 
 
   \section{Diskussion}
 
   Die Umsetzung der Quaternionen als Objekt war ziemlich einfach. Etwas schade ist nur, dass Java keine Möglichkeit bietet, beispielsweise Additionen als $a + b$ darzustellen anstatt \texttt{a.add(b)}. Ich habe mir deshalb auch überlegt die Bibliothek in Scala umzusetzen. Damit ist es aber nicht so einfach Apps zu schreiben, was den grössten Vorteil dieser Bibliothek wieder zunichte machen würde.
 
-  Da bei den Android-Sensoren durchgehend Zahlen vom Typ \texttt{float} verwendet werden, habe ich mir auch überlegt eine Version zu machen die darauf basiert anstatt \texttt{double}, doch auf modernen Geräten scheinen die letzteren dank Hardwarebeschleunigung schneller zu sein, der Zusatzaufwand lohnt sich also vermutlich nicht.
+  Da bei den Android-Sensoren durchgehend Zahlen vom Typ \texttt{float} verwendet werden, habe ich mir auch überlegt eine Version zu machen die darauf basiert anstatt \texttt{double}. Auf modernen Geräten scheinen die letzteren dank Hardwarebeschleunigung jedoch schneller zu sein, der Zusatzaufwand lohnt sich also vermutlich nicht.
 
-  Die ``Wo ist unten''-App erwies sich als gutes Beispiel, wie einfach die Arbeit mit Quaternionen sein kann. Das grösste Problem war die Darstellung, mein Versuch mit OpenGL ist kläglich daran gescheitert dass ich ihm nicht beibringen konnte die richtigen Seiten zu zeichenen.
+  Die ``Wo ist unten''-App erwies sich als gutes Beispiel, wie einfach die Arbeit mit Quaternionen sein kann. Das grösste Problem war die Darstellung. Mein Versuch mit OpenGL ist kläglich daran gescheitert dass ich ihm nicht beibringen konnte die richtigen Seiten zu zeichnen.
 
-  Zuerst dachte ich, der künstliche Horizont wäre fast ein bisschen zu einfach nach ``Unten'', es ist ja schliesslich das gleiche Problem nur mit einer Drehung mehr. Ganz so einfach war es dann doch nicht, und ich musste auf eine Drehmatrix ausweichen. Ich vermute immer noch es geht auch einfacher, aber ich konnte die Lösung dazu nicht finden.
+  Zuerst dachte ich, der künstliche Horizont wäre fast ein bisschen zu einfach nach ``Wo ist unten?'', es ist ja schliesslich das gleiche Problem nur mit einer Drehung mehr. Ganz so einfach war es dann doch nicht, und ich musste auf eine Drehmatrix ausweichen. Ich vermute es gibt noch einen eleganten Weg nur mit Quaternionen, aber ich konnte ihn nicht finden.
 
 
-  \section{Literatur}
+  \appendix
+  \addcontentsline{toc}{section}{Anhang}
+  \section*{Anhang}
+  \renewcommand{\thesubsection}{\Alph{subsection}}
+
+
+  \subsection{Weitere Informationen zum Projekt}
+
+  \begin{itemize}
+    \item Java-Dokumentation siehe Ordner \texttt{javadoc}
+    \item Sourcecode siehe Ordner \texttt{sources} oder
+    \begin{itemize}
+      \item \url{https://github.com/Dissem/MathLib}
+      \item \url{https://github.com/Dissem/Down}
+      \item \url{https://github.com/Dissem/Artificial-Horizon}
+    \end{itemize}
+  \end{itemize}
+
+
+  \subsection{Literatur}
 
   Wikipedia ist immer wieder eine gute Anlaufstelle für mathematische Fragen. Insbesondere die englischsprachige Version behandelt Quaternionen sehr ausführlich.
 
@@ -142,12 +162,9 @@ Winkelgeschwindigkeiten entlang der drei Achsen, aus welchen man die Lage, und d
     \item \url{http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation}
   \end{itemize}
 
-  \appendix
-  \addcontentsline{toc}{section}{Anhang}
-  \section*{Anhang}
-  \renewcommand{\thesubsection}{\Alph{subsection}}
 
-  \subsection{Methoden der Klasse Quaternion}
+  \subsection{Methoden der Klasse Quaternion}\label{methods}
+
   \begin{itemize}
     \item \texttt{q.add(r)} $= q + r$
     \item \texttt{q.subtract(r)} $= q - r$
@@ -180,17 +197,6 @@ Winkelgeschwindigkeiten entlang der drei Achsen, aus welchen man die Lage, und d
     \item \texttt{H($\alpha$, $\vec{v}$)} $= \cos\frac{\alpha}{2} + \mathrm{i} \sin\frac{\alpha}{2} v_x + \mathrm{j} \sin\frac{\alpha}{2} v_y + \mathrm{k} \sin\frac{\alpha}{2} v_z$
     \item H([x, y, z]), H([w, x, y, z])
     \item getRotation(p, q) $= r$, so dass $r p \bar{r} = q$
-  \end{itemize}
-
-  \subsection{}
-  \begin{itemize}
-    \item Java-Dokumentation siehe Ordner \texttt{javadoc}
-    \item Sourcecode siehe Ordner \texttt{sources} oder
-    \begin{itemize}
-      \item \url{https://github.com/Dissem/MathLib}
-      \item \url{https://github.com/Dissem/Down}
-      \item \url{https://github.com/Dissem/Artificial-Horizon}
-    \end{itemize}
   \end{itemize}
 
 \end{document}
